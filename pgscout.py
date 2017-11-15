@@ -7,7 +7,6 @@ from threading import Thread
 
 from flask import Flask, request, jsonify
 
-import pgscout
 from pgscout.ScoutGuard import ScoutGuard
 from pgscout.ScoutJob import ScoutJob
 from pgscout.cache import get_cached_encounter, cache_encounter, cleanup_cache
@@ -142,10 +141,6 @@ t.start()
 t = Thread(target=run_webserver, name='webserver')
 t.daemon = True
 t.start()
-
-#test discord posting
-if cfg_get('shadowban_webhook'):
-    pgscout.utils.discord_webhook("Test", "Shadowban posting is working")
 
 # Catch signals if Linux, dummy loop on Windows
 signal.signal(signal.SIGINT, signal_handler)
