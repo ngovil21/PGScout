@@ -88,7 +88,7 @@ class Scout(POGOAccount):
                     self.log_warning("Account probably shadowbanned. Stopping.")
                     if cfg_get('shadowban_webhook'):
                         message = "Account {} (Level {}) is probably shadowbanned. Releasing.".format(self.username, self.get_stats('level'))
-                        if discord_webhook(cfg_get('shadownban_user'), message):
+                        if discord_webhook(cfg_get('shadownban_user', 'Shadowbanned'), message):
                             self.log_info("Message posted to Discord")
                         else:
                             self.log_warn("Error posting message to Discord")
