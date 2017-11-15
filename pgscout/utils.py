@@ -79,3 +79,12 @@ def load_pgpool_accounts(count, reuse=False):
     }
     r = requests.get("{}/account/request".format(cfg_get('pgpool_url')), params=request)
     return r.json()
+
+
+def discord_webhook(username, content):
+    request = {
+        'username': username,
+        'content': content
+    }
+    r = requests.post(cfg_get('shadowban_webhook'), json=request, timeout=5)
+    return r.ok

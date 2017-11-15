@@ -13,7 +13,7 @@ from pgoapi.protos.pogoprotos.networking.responses.encounter_response_pb2 import
 from pgscout.config import cfg_get
 from pgscout.moveset_grades import get_moveset_grades
 from pgscout.stats import inc_for_pokemon
-from pgscout.utils import calc_pokemon_level, calc_iv
+from pgscout.utils import calc_pokemon_level, calc_iv, discord_webhook
 
 log = logging.getLogger(__name__)
 
@@ -86,6 +86,12 @@ class Scout(POGOAccount):
 
                 if self.shadowbanned:
                     self.log_warning("Account probably shadowbanned. Stopping.")
+                    if cfg_get('shadowban_webhook'):
+                        message = "Account {} (Level {}) is probably shadowbanned. Releasing.".format(self.username, self.get_stats('level'))
+                        if discord_webhook(cfg_get('shadownban_user'), message):
+                            self.log_info("Message posted to Discord")
+                        else:
+                            self.log_warn("Error posting message to Discord")
                     break
 
             except (AuthException, BannedAccountException, CaptchaException) as e:
