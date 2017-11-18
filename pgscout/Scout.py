@@ -94,13 +94,15 @@ class Scout(POGOAccount):
 
             except (AuthException, BannedAccountException, CaptchaException) as e:
                 job.result = self.scout_error(self.last_msg)
+                if cfg_get('discord_webhook'):
+                    self.post_discord_webhook(banned=True)
                 break
             except Exception:
                 job.result = self.scout_error(repr(sys.exc_info()))
             finally:
                 job.processed = True
                 if self.is_banned() or self.has_captcha():
-                    if cfg_get('shadowban_webhook'):
+                    if cfg_get('discord_webhook'):
                         self.post_discord_webhook(banned=True)
                     break
 
