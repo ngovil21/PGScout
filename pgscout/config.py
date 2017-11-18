@@ -50,7 +50,7 @@ def parse_args():
                              'If --pgpool_url is specified the account gets swapped out.')
 
     parser.add_argument('-dw', '--discord-webhook', default=None,
-                        help='Post message to Discord webhook when account is marked as shadowbanned')
+                        help='Post message to Discord webhook when account has an error')
 
     parser.add_argument('-du', '--discord-user', default=None,
                         help='Username to post Discord webhook as')
