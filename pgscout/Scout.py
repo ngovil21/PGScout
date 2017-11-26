@@ -279,12 +279,13 @@ class Scout(POGOAccount):
         return lat, lng
 
     def post_discord_webhook(self, banned=False, shadowbanned=False):
+        running_time = (time.time() - self.start_time)/ 3600.0
         if banned:
-            message = "Account {} (Level {}) is banned or has captcha. Releasing.".format(self.username,
-                                                                                      self.get_stats('level'))
+            message = "Account {} (Level {}) is banned or has captcha after {} encounters ({:.2f} hours). Releasing.".format(self.username,
+                                                                                      self.get_stats('level'), self.total_encounters, running_time)
         elif shadowbanned:
-            message = "Account {} (Level {}) is probably shadowbanned. Releasing.".format(self.username,
-                                                                                          self.get_stats('level'))
+            message = "Account {} (Level {}) is probably shadowbanned after {} encounters ({:.2f} hours). Releasing.".format(self.username,
+                                                                                          self.get_stats('level'), self.total_encounters, running_time)
         else:
             message = self.last_msg
         if discord_webhook(cfg_get('discord_user', cfg_get('pgpool_system_id')), message):
