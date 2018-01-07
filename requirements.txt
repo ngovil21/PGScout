@@ -1,7 +1,7 @@
 flask
-git+https://github.com/pogodevorg/pgoapi.git@93a423a#egg=pgoapi
+git+https://github.com/michikrug/pgoapi.git@update-ptc-login#egg=pgoapi
 git+https://github.com/sLoPPydrive/MrMime.git#egg=MrMime
-geopy
+cHaversine
 beautifulsoup4
 requests
 psutil

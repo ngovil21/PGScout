@@ -5,6 +5,13 @@
 #port: 4242             # Port to bind to.
 
 
+# API & Network Settings
+########################
+
+hash-key:               # Hash key(s) to use.
+#proxies-file:          # Load proxy list from text file (one proxy per line).
+
+
 # Accounts
 ##########
 
@@ -13,6 +20,10 @@
 #shadowban-threshold: 3 # Mark an account as shadowbanned after this many errors. (use 0 to disable threshold)
                         # If allPGPool is specified the account gets swapped out.
 
+# Discord Webhook
+###################
+#discord-webhook:
+#discord-user:
 
 # PGPool
 ########
@@ -25,10 +36,11 @@
 # General Settings
 ##################
 
-hash-key:               # Hash key(s) to use.
-#proxies-file:          # Load proxy list from text file (one proxy per line).
-
-# Discord Webhook
-###################
-discord-webhook:
-discord-user:
+#max-queued-jobs:       # Maximum number of queued scout jobs before rejecting new jobs.
+                        # 0 (default) means no restriction.
+#max-job-ttl:           # Maximum number of minutes a job is allowed to be queued before it expires (Time-To-Live).
+                        # Expired jobs will be rejected when it's their turn. 0 (default) means no restriction.
+#low-prio-file:         # File containing Pokemon names or IDs of Pokemon being encountered with low priority.
+                        # Requests for high priority encounters are being preferred. If the queue is full any
+                        # requests for low priority encounters are being dropped where high prio encounters are
+                        # still being queued.

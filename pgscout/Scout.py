@@ -1,9 +1,8 @@
 import logging
-import time
 from base64 import b64encode
 from collections import deque
 
-import geopy
+import time
 from mrmime.pogoaccount import POGOAccount, CaptchaException
 from mrmime.shadowbans import COMMON_POKEMON
 from mrmime.utils import jitter_location
@@ -13,7 +12,7 @@ from pgoapi.protos.pogoprotos.networking.responses.encounter_response_pb2 import
 from pgscout.config import cfg_get
 from pgscout.moveset_grades import get_moveset_grades
 from pgscout.stats import inc_for_pokemon
-from pgscout.utils import calc_pokemon_level, calc_iv, discord_webhook
+from pgscout.utils import calc_pokemon_level, calc_iv, distance, PRIO_NAMES, discord_webhook
 
 log = logging.getLogger(__name__)
 
@@ -57,9 +56,17 @@ class Scout(POGOAccount):
     def run(self):
         self.log_info("Waiting for job...")
         while True:
-            job = self.job_queue.get()
+            (prio, t, job) = self.job_queue.get()
             try:
-                self.log_info(u"Scouting a {} at {}, {}".format(job.pokemon_name, job.lat, job.lng))
+                if job.expired():
+                    self.log_warning(
+                        u"Scout job for {} at {}, {} expired. Rejecting.".format(job.pokemon_name, job.lat, job.lng))
+                    job.result = self.scout_error(self.last_msg)
+                    continue
+
+                self.log_info(u"Scouting a {} at {}, {} with {} priority".format(job.pokemon_name, job.lat, job.lng,
+                                                                                 PRIO_NAMES[prio]))
+
                 # Initialize API
                 (lat, lng) = jitter_location(job.lat, job.lng)
                 self.set_position(lat, lng, job.altitude)
@@ -143,6 +150,7 @@ class Scout(POGOAccount):
                     break
             except Exception as e:
                 self.log_error('Exception on GMO try {}: {}'.format(tries, repr(e)))
+            time.sleep(11)
 
         if len(wild_pokemon) == 0:
             self.log_info("Still no wild Pokemon found. Giving up.")
@@ -162,7 +170,7 @@ class Scout(POGOAccount):
             loc = (job.lat, job.lng)
             min_dist = False
             for pkm in candidates:
-                d = geopy.distance.distance(loc, (pkm.latitude, pkm.longitude)).meters
+                d = distance(loc, (pkm.latitude, pkm.longitude))
                 if not min_dist or d < min_dist:
                     min_dist = d
                     target = pkm
@@ -183,6 +191,14 @@ class Scout(POGOAccount):
         responses = self.req_encounter(job.encounter_id, job.spawn_point_id, float(job.lat), float(job.lng))
         self.update_history()
         return self.parse_encounter_response(responses, job)
+
+    #Override Mr. Mime method to configure action delay in request
+    def req_encounter(self, encounter_id, spawn_point_id, latitude, longitude):
+        return self.perform_request(lambda req: req.encounter(
+            encounter_id=encounter_id,
+            spawn_point_id=spawn_point_id,
+            player_latitude=latitude,
+            player_longitude=longitude), action=cfg_get('encounter_action_delay', 2.25))
 
     def parse_encounter_response(self, responses, job):
         if not responses:
