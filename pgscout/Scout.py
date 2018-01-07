@@ -108,10 +108,6 @@ class Scout(POGOAccount):
                 job.result = self.scout_error(repr(sys.exc_info()))
             finally:
                 job.processed = True
-                if self.is_banned() or self.has_captcha():
-                    if cfg_get('discord_webhook'):
-                        self.post_discord_webhook(banned=True)
-                    break
 
     def update_history(self):
         if self.previous_encounter:
