@@ -22,8 +22,8 @@ hash-key:               # Hash key(s) to use.
 
 # Discord Webhook
 ###################
-#discord-webhook:
-#discord-user:
+#discord-webhook:       # Discord webhook for channel to post to
+#discord-user:          # Username of user to post as (defaults to PGScout).
 
 # PGPool
 ########
