@@ -45,6 +45,6 @@ hash-key:               # Hash key(s) to use.
                         # requests for low priority encounters are being dropped where high prio encounters are
                         # still being queued.
 
-#encounter_action_delay: 2.25   # Encounter delay between actions. Lower numbers will increase the encounters/hr per
+#encounter-action-delay: 2.25   # Encounter delay between actions. Lower numbers will increase the encounters/hr per
                                 # account 2.25 is the default value. Scales linearly till about 0.5 for up to 4000 enc/hr.
                                 # This overrides a Mr. Mime setting.
