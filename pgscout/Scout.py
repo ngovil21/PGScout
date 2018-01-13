@@ -66,6 +66,8 @@ class Scout(POGOAccount):
                 if not self.check_login():
                     job.result = self.scout_error(self.last_msg)
                     if self.is_banned() or self.has_captcha():
+                        if cfg_get('discord_webhook'):
+                            self.post_discord_webhook(banned=True)
                         break
                     else:
                         continue
@@ -86,22 +88,22 @@ class Scout(POGOAccount):
 
                 if self.shadowbanned:
                     self.log_warning("Account probably shadowbanned. Stopping.")
-                    if cfg_get('shadowban_webhook'):
-                        message = "Account {} (Level {}) is probably shadowbanned. Releasing.".format(self.username, self.get_stats('level'))
-                        if discord_webhook(cfg_get('shadownban_user', 'Shadowbanned'), message):
-                            self.log_info("Message posted to Discord")
-                        else:
-                            self.log_warn("Error posting message to Discord")
+                    if cfg_get('discord_webhook'):
+                        self.post_discord_webhook(shadowbanned=True)
                     break
 
             except (AuthException, BannedAccountException, CaptchaException) as e:
                 job.result = self.scout_error(self.last_msg)
+                if cfg_get('discord_webhook'):
+                    self.post_discord_webhook(banned=True)
                 break
             except Exception:
                 job.result = self.scout_error(repr(sys.exc_info()))
             finally:
                 job.processed = True
                 if self.is_banned() or self.has_captcha():
+                    if cfg_get('discord_webhook'):
+                        self.post_discord_webhook(banned=True)
                     break
 
     def update_history(self):
@@ -275,3 +277,18 @@ class Scout(POGOAccount):
         (lat, lng) = jitter_location(job.lat, job.lng)
         self.set_position(lat, lng, job.altitude)
         return lat, lng
+
+    def post_discord_webhook(self, banned=False, shadowbanned=False):
+        running_time = (time.time() - self.start_time)/ 3600.0
+        if banned:
+            message = "Account {} (Level {}) is banned or has captcha after {} encounters ({:.2f} hours). Releasing.".format(self.username,
+                                                                                      self.get_stats('level'), self.total_encounters, running_time)
+        elif shadowbanned:
+            message = "Account {} (Level {}) is probably shadowbanned after {} encounters ({:.2f} hours). Releasing.".format(self.username,
+                                                                                          self.get_stats('level'), self.total_encounters, running_time)
+        else:
+            message = self.last_msg
+        if discord_webhook(cfg_get('discord_user', cfg_get('pgpool_system_id')), message):
+            self.log_info("Message posted to Discord")
+        else:
+            self.log_warn("Error posting message to Discord")

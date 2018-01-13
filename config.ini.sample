@@ -31,3 +31,8 @@
 
 hash-key:               # Hash key(s) to use.
 #proxies-file:          # Load proxy list from text file (one proxy per line).
+
+# Discord Webhook
+###################
+discord-webhook:
+discord-user:

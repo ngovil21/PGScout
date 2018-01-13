@@ -86,5 +86,5 @@ def discord_webhook(username, content):
         'username': username,
         'content': content
     }
-    r = requests.post(cfg_get('shadowban_webhook'), json=request, timeout=5)
+    r = requests.post(cfg_get('discord_webhook'), json=request, timeout=5)
     return r.ok
