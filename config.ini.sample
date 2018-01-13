@@ -13,6 +13,10 @@
 #shadowban-threshold: 3 # Mark an account as shadowbanned after this many errors. (use 0 to disable threshold)
                         # If allPGPool is specified the account gets swapped out.
 
+# Discord Webhook
+###################
+#discord-webhook:       # Discord webhook for channel to post to
+#discord-user:          # Username of user to post as (defaults to PGScout).
 
 # PGPool
 ########
