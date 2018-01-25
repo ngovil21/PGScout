@@ -11,8 +11,6 @@ log = logging.getLogger(__name__)
 
 class ScoutGuard(object):
 
-    null_scout = Scout("ptc", "None", "None", None)
-
     def __init__(self, auth, username, password, job_queue):
         self.job_queue = job_queue
         self.active = False
@@ -31,6 +29,7 @@ class ScoutGuard(object):
             self.active = True
         else:
             self.acc = None
+            self.null_scout = Scout("ptc", "None", "None", None)    #Set null scout as a placeholder
 
     def init_scout(self, acc_data):
         return Scout(acc_data['auth_service'], acc_data['username'], acc_data['password'], self.job_queue)
@@ -46,6 +45,7 @@ class ScoutGuard(object):
             # Scout disabled, probably (shadow)banned or no account.
             if use_pgpool():
                 self.swap_account()
+                del self.null_scout     #after swap, we don't need null_scout anymore
             else:
                 # We don't have a replacement account, so just wait a veeeery long time.
                 time.sleep(60*60*24*1000)
