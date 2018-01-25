@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 class ScoutGuard(object):
 
-    null_scout = Scout("---", "None", "None", None)
+    null_scout = Scout("ptc", "None", "None", None)
 
     def __init__(self, auth, username, password, job_queue):
         self.job_queue = job_queue
