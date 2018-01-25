@@ -11,6 +11,8 @@ log = logging.getLogger(__name__)
 
 class ScoutGuard(object):
 
+    null_scout = Scout("---", "None", "None", None)
+
     def __init__(self, auth, username, password, job_queue):
         self.job_queue = job_queue
         self.active = False
@@ -23,20 +25,25 @@ class ScoutGuard(object):
         }
         if not username and use_pgpool():
             initial_account = load_pgpool_accounts(1, reuse=True)
-        self.acc = self.init_scout(initial_account)
-        self.active = True
+
+        if initial_account.get('username'):
+            self.acc = self.init_scout(initial_account)
+            self.active = True
+        else:
+            self.acc = None
 
     def init_scout(self, acc_data):
         return Scout(acc_data['auth_service'], acc_data['username'], acc_data['password'], self.job_queue)
 
     def run(self):
         while True:
-            self.active = True
-            self.acc.run()
-            self.active = False
-            self.acc.release(reason=self.acc.last_msg)
+            if self.acc:
+                self.active = True
+                self.acc.run()
+                self.active = False
+                self.acc.release(reason=self.acc.last_msg)
 
-            # Scout disabled, probably (shadow)banned.
+            # Scout disabled, probably (shadow)banned or no account.
             if use_pgpool():
                 self.swap_account()
             else:
@@ -53,3 +60,7 @@ class ScoutGuard(object):
                 break
             log.warning("Could not request new account from PGPool. Out of accounts? Retrying in 1 minute.")
             time.sleep(60)
+
+    #access method to return acc, or null Scout for console
+    def get_account(self):
+        return self.acc or self.null_scout

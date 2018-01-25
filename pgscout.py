@@ -133,7 +133,7 @@ def status(page=1):
         if i >= len(scouts):
             break
         lines += "<tr>"
-        s = scouts[i].acc
+        s = scouts[i].get_account()
         warn = s.get_state('warn')
         warn_str = '' if warn is None else ('Yes' if warn else 'No')
         lines += td(i+1)
@@ -193,14 +193,17 @@ def load_accounts(jobs):
                 accounts.append(ScoutGuard(fields[0], fields[1], fields[2], jobs))
     elif cfg_get('pgpool_url') and cfg_get('pgpool_system_id') and cfg_get('pgpool_num_accounts') > 0:
 
-        acc_json = load_pgpool_accounts(cfg_get('pgpool_num_accounts'), reuse=True)
-        if isinstance(acc_json, dict):
-            acc_json = [acc_json]
+        # acc_json = load_pgpool_accounts(cfg_get('pgpool_num_accounts'), reuse=True)
+        # if isinstance(acc_json, dict):
+        #     acc_json = [acc_json]
+        #
+        # if len(acc_json) > 0:
+        #     log.info("Loaded {} accounts from PGPool.".format(len(acc_json)))
+        #     for acc in acc_json:
+        #         accounts.append(ScoutGuard(acc['auth_service'], acc['username'], acc['password'], jobs))
 
-        if len(acc_json) > 0:
-            log.info("Loaded {} accounts from PGPool.".format(len(acc_json)))
-            for acc in acc_json:
-                accounts.append(ScoutGuard(acc['auth_service'], acc['username'], acc['password'], jobs))
+        for i in range(0,int(cfg_get('pgpool_num_accounts'))):
+            accounts.append(ScoutGuard("", "", "", jobs))
 
     if len(accounts) == 0:
         log.error("Could not load any accounts. Nothing to do. Exiting.")
