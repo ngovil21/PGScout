@@ -199,8 +199,6 @@ def load_accounts(jobs):
 
         if len(acc_json) > 0:
             log.info("Loaded {} accounts from PGPool.".format(len(acc_json)))
-        #     for acc in acc_json:
-        #         accounts.append(ScoutGuard(acc['auth_service'], acc['username'], acc['password'], jobs))
 
         for i in range(0, int(cfg_get('pgpool_num_accounts'))):
             if i < len(acc_json):
