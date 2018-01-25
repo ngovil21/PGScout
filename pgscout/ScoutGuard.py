@@ -44,6 +44,7 @@ class ScoutGuard(object):
             # Scout disabled, probably (shadow)banned or no account.
             if use_pgpool():
                 self.swap_account()
+                time.sleep(1)
                 if self.null_scout:
                     del self.null_scout     #after swap, we don't need null_scout anymore
             else:
