@@ -21,8 +21,8 @@ class ScoutGuard(object):
             'username': username,
             'password': password
         }
-        if not username and use_pgpool():
-            initial_account = load_pgpool_accounts(1, reuse=True)
+        # if not username and use_pgpool():
+        #     initial_account = load_pgpool_accounts(1, reuse=True)
 
         if initial_account.get('username'):
             self.acc = self.init_scout(initial_account)
