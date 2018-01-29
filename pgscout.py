@@ -133,7 +133,9 @@ def status(page=1):
         if i >= len(scouts):
             break
         lines += "<tr>"
-        s = scouts[i].get_account()
+        s = scouts[i].acc
+        if not s:
+            continue
         warn = s.get_state('warn')
         warn_str = '' if warn is None else ('Yes' if warn else 'No')
         lines += td(i+1)

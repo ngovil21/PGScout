@@ -27,8 +27,8 @@ class ScoutGuard(object):
             self.active = True
         else:
             self.acc = None
-            self.null_scout = Scout("ptc", "None", "None", None)    #Set null scout as a placeholder
-            self.null_scout.last_msg = "Empty scout set. Awaiting new account..."
+            # self.null_scout = Scout("ptc", "None", "None", None)    #Set null scout as a placeholder
+            # self.null_scout.last_msg = "Empty scout set. Awaiting new account..."
 
     def init_scout(self, acc_data):
         return Scout(acc_data['auth_service'], acc_data['username'], acc_data['password'], self.job_queue)
@@ -45,8 +45,6 @@ class ScoutGuard(object):
             if use_pgpool():
                 self.swap_account()
                 time.sleep(1)
-                if self.null_scout:
-                    del self.null_scout     #after swap, we don't need null_scout anymore
             else:
                 # We don't have a replacement account, so just wait a veeeery long time.
                 time.sleep(60*60*24*1000)
@@ -64,4 +62,10 @@ class ScoutGuard(object):
 
     #access method to return acc, or null_scout for console
     def get_account(self):
-        return self.acc or self.null_scout
+        return self.acc or None
+
+    def get_account_username(self):
+        if self.acc:
+            return self.acc.username
+        else:
+            return ""

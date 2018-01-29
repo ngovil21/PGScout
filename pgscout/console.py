@@ -94,7 +94,7 @@ def print_status(scouts, initial_display, jobs):
 
         # Print lines
         os.system('cls' if os.name == 'nt' else 'clear')
-        print ('\n'.join(lines)).encode('utf-8')
+        print ('\n'.join(filter(None, lines))).encode('utf-8')
 
 
 def print_job_queue(lines, state, queue):
@@ -113,7 +113,9 @@ def print_job_queue(lines, state, queue):
 
 def print_scouts(lines, state, scouts):
     def scout_line(current_line, scout_guard):
-        scout = scout_guard.get_account()
+        scout = scout_guard.acc
+        if not scout:
+            return None
         warn = scout.get_state('warn')
         warn_str = '' if warn is None else ('Yes' if warn else 'No')
         active = 'Yes' if scout_guard.active else 'No'
@@ -136,7 +138,7 @@ def print_scouts(lines, state, scouts):
                                     scout.last_msg)
 
     len_username = str(reduce(lambda l1, l2: max(l1, l2),
-                              map(lambda s: len(s.get_account().username), scouts)))
+                              map(lambda s: len(s.get_account_username()), scouts)))
     len_num = str(len(str(len(scouts))))
     if cfg_get('proxies'):
         line_tmpl = u'{:' + len_num + '} | {:' + len_username + '} | {:25} | {:8} | {:4} | {:6} | {:10} | {:6} | {:6} |{:14} | {}'
