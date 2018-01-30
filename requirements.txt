@@ -1,7 +1,7 @@
 flask
-git+https://github.com/pogodevorg/pgoapi.git@93a423a#egg=pgoapi
-git+https://github.com/sLoPPydrive/MrMime.git#egg=MrMime
-geopy
+git+https://github.com/pogodevorg/pgoapi.git@299dd7cdca75ba44e0fb435ca7e813d8fab80717#egg=pgoapi
+git+https://github.com/SenorKarlos/MrMime.git#egg=MrMime
+cHaversine
 beautifulsoup4
 requests
 psutil

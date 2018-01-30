@@ -4,8 +4,6 @@ PGScout is a webservice that takes coordinates and encounter ID of a Pokémon in
 
 **Bonus feature #2**: PGScout also works if you don't have the `encounter_id` and `spawn_point_id` of the Pokémon which are usually necessary to perform the encounter request. **Location and Pokédex ID is enough** for PGScout to work. It will scan the area for the desired Pokémon and perform the encounter afterwards.
 
-# Support the Author [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/slop)
-If you like PGScout and feel the urgent need to **thank** me, the best way to do it is via **[PayPal](https://www.paypal.me/slop)** or **BitCoin (_1PNdXhzvvz2ytCf8mbFdF9MQaABzpjSbJi_)**  Seriously, that would be so awesome! :-D If you can't or don't want to use PayPal or BitCoin some **level 30+** accounts or **[PokeHash keys](https://talk.pogodev.org/d/51-api-hashing-service-by-pokefarmer)** are always welcome as well. You can find me on various Pokémon related Discords as "sLoPPydrive".
 
 # Get Help
 Come join the official **[PGTools Discord Server](https://discord.gg/Vwe5mTa)** for [PGScout](https://github.com/sLoPPydrive/PGScout), [PGNumbra](https://github.com/sLoPPydrive/PGNumbra), [PGPool](https://github.com/sLoPPydrive/PGPool) and the PGTools [RocketMap](https://github.com/sLoPPydrive/RocketMap) and [PokeAlarm](https://github.com/sLoPPydrive/PokeAlarm) forks to get help or just hang around. You are very welcome. :)
@@ -39,6 +37,14 @@ Configuration parameters can also be given on the commandline:
 -l LEVEL, --level LEVEL
                     Minimum trainer level required. Lower levels will
                     yield an error.
+-mqj MAX_QUEUED_JOBS, --max-queued-jobs MAX_QUEUED_JOBS
+                    Maximum number of queued scout jobs before rejecting
+                    new jobs. 0 (default) means no restriction.
+-mjttl MAX_JOB_TTL, --max-job-ttl MAX_JOB_TTL
+                    Maximum number of minutes a job is allowed to be
+                    queued before it expires (Time-To-Live). Expired jobs
+                    will be rejected when its their turn. 0 (default)
+                    means no restriction.
 -sb SHADOWBAN_THRESHOLD, --shadowban-threshold SHADOWBAN_THRESHOLD
                     Mark an account as shadowbanned after this many
                     errors. If --pgpool_url is specified the account gets
@@ -71,11 +77,16 @@ Don't forget to run `pip install -r requirements.txt` at least once before actua
 # Requests
 PGScout accepts **HTTP GET** requests at `http://<your host>:<port>/iv` and needs these parameters:
 
-* `pokemon_id`: The Pokédex number of the Pokémon
-* `encounter_id`: Encounter ID (Base64 encoded **or** as long integer) provided by map scanner
-* `spawn_point_id`: ID of spawn point provided by map scanner as **hex string**
-* `latitude`
-* `longitude`
+* `pokemon_id`: The Pokédex number of the Pokémon _(mandatory)_
+* `encounter_id`: Encounter ID (Base64 encoded **or** as long integer) provided by map scanner _(recommended)_
+* `spawn_point_id`: ID of spawn point provided by map scanner as **hex string** _(recommended)_
+* `latitude`: Latitude of Pokémon spawn _(mandatory)_
+* `longitude`: Longitude of Pokémon spawn _(mandatory)_
+* `despawn_time`: Time in seconds since the Epoch when the Pokémon disappears, if known. _(optional)_ 
+
+**Note** that if either `encounter_id` or `spawn_point_id` is missing PGScout first performs a `GET_MAP_OBJECTS` request
+to scan the given location. It then searches for the nearest Pokémon with the given `pokemon_id` and performs the encounter
+on this one. This is generally **not recommended**! 
 
 An example **request** looks like this:
 ```

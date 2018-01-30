@@ -11,9 +11,9 @@ from datetime import datetime
 from threading import Thread
 
 from pgscout.cache import get_cached_count
-from pgscout.config import cfg_get
+from pgscout.config import cfg_get, get_pokemon_name
 from pgscout.stats import get_pokemon_stats
-from pgscout.utils import get_pokemon_name, rss_mem_size, app_state
+from pgscout.utils import rss_mem_size, app_state, PRIO_NAMES
 
 default_log_level = 0
 
@@ -31,6 +31,9 @@ def input_processor(state):
             os._exit(0)
         elif command == 'p':
             state['display'] = 'pokemon'
+            state['page'] = 1
+        elif command == 'u':
+            state['display'] = 'queue'
             state['page'] = 1
         elif command == 't':
             app_state.toggle_new_requests()
@@ -80,8 +83,19 @@ def print_status(scouts, initial_display, jobs):
             total_pages = print_scouts(lines, state, scouts)
         elif state['display'] == 'pokemon':
             total_pages = print_pokemon(lines, state)
+        elif state['display'] == 'queue':
+            total_pages = print_job_queue(lines, state, jobs)
+
+        # Encounters
+        enctotal = 0
+        for scout in scouts:
+            enctotal   = enctotal   + scout.acc.encounters_per_hour if scout.active else 0.0
+
+        lines.append("")
+        lines.append("Enc/hr Total:   {:5.0f}".format(enctotal))
 
         # Footer
+        lines.append("")
         lines.append('Page {}/{}. Page number to switch pages. <enter> to '
                      'toggle log view. "p" for Pokemon stats.'
                      ' "t" to toggle accepting new requests.'.format(
@@ -90,6 +104,20 @@ def print_status(scouts, initial_display, jobs):
         # Print lines
         os.system('cls' if os.name == 'nt' else 'clear')
         print ('\n'.join(lines)).encode('utf-8')
+
+
+def print_job_queue(lines, state, queue):
+    def print_job(position, entry):
+        prio = PRIO_NAMES[entry[0]].upper()
+        time = entry[1]
+        job = entry[2]
+        return line_tmpl.format(position, prio, time, job.pokemon_name)
+
+    line_tmpl = u'{:4} | {:6} | {:15} | {}'
+    lines.append("")
+    lines.append("Scout Job Queue")
+    lines.append(line_tmpl.format('Pos', 'Prio', 'Time', 'Pokemon'))
+    return print_lines(lines, print_job, sorted(queue.queue), 5, state)
 
 
 def print_scouts(lines, state, scouts):
@@ -120,15 +148,15 @@ def print_scouts(lines, state, scouts):
                               map(lambda s: len(s.acc.username), scouts)))
     len_num = str(len(str(len(scouts))))
     if cfg_get('proxies'):
-        line_tmpl = u'{:' + len_num + '} | {:' + len_username + '} | {:25} | {:8} | {:4} | {:6} | {:10} | {:5} | {:6} |{:14} | {}'
+        line_tmpl = u'{:' + len_num + '} | {:' + len_username + '} | {:25} | {:8} | {:4} | {:6} | {:10} | {:6} | {:6} |{:14} | {}'
         lines.append(
             line_tmpl.format('#', 'Scout', 'Proxy', 'Start', 'Warn', 'Active', 'Encounters', 'Enc/h', 'Errors',
                              'Last Encounter', 'Message'))
     else:
-        line_tmpl = u'{:' + len_num + '} | {:' + len_username + '} | {:8} | {:4} | {:6} | {:10} | {:5} | {:6} | {:14} | {}'
+        line_tmpl = u'{:' + len_num + '} | {:' + len_username + '} | {:8} | {:4} | {:6} | {:10} | {:6} | {:6} | {:14} | {}'
         lines.append(line_tmpl.format('#', 'Scout', 'Start', 'Warn', 'Active', 'Encounters', 'Enc/h', 'Errors',
                                       'Last Encounter', 'Message'))
-    return print_lines(lines, scout_line, scouts, 4, state)
+    return print_lines(lines, scout_line, scouts, 7, state)
 
 
 def print_pokemon(lines, state):
