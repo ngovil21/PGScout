@@ -183,7 +183,11 @@ def pokemon(page=1):
     hdict = {'#': 'pid', 'Pokemon Name': 'pname', 'Encounters': 'count'}
     sort = request.args.get('sort', 'count')
     reverse = request.args.get('reverse', True)
-    max_pokemon_per_page = int(request.args.get('max_per_page', 25))
+    max_pokemon_per_page = request.args.get('max_per_page', "25")
+    if max_pokemon_per_page.lower() == "all":
+        mppp = 99999
+    else:
+        mppp = int(max_pokemon_per_page)
     if reverse == "False":
         reverse = False
     elif reverse == "True":
@@ -191,7 +195,7 @@ def pokemon(page=1):
     for i in range(0, len(pstats)):
         pstats[i]['pname'] = get_pokemon_name(pstats[i]['pid'])
     pstats.sort(key=lambda x: x[sort], reverse=reverse)
-    max_page = int(math.ceil(len(pstats) / float(max_pokemon_per_page)))
+    max_page = int(math.ceil(len(pstats) / float(mppp)))
 
     lines = u"<style> th,td { padding-left: 10px; padding-right: 10px; border: 1px solid #ddd; } table " \
             u"{ border-collapse: collapse } td { text-align:center }</style>"
@@ -208,12 +212,12 @@ def pokemon(page=1):
                                                                                              max_pokemon_per_page, h, arrow)
     lines += "</tr>"
 
-    if page * max_pokemon_per_page > len(pstats):    #Page number is too great, set to last page
+    if page * mppp > len(pstats):    #Page number is too great, set to last page
         page = max_page
     if page < 1:
         page = 1
 
-    for i in range((page-1)*max_pokemon_per_page, page*max_pokemon_per_page):
+    for i in range((page-1)*mppp, page*mppp):
         if i >= len(pstats):
             break
         pid = pstats[i]['pid']
@@ -224,7 +228,7 @@ def pokemon(page=1):
         lines += "</tr>"
     lines += "</table>"
 
-    if len(pstats) > max_pokemon_per_page:  # Use pages if we have more than max_scouts_per_page
+    if len(pstats) > mppp:  # Use pages if we have more than max_pokemon_per_page
         lines += "<br>"
         lines += "Page: "
         if max_page > 1 and page > 1:
@@ -246,13 +250,15 @@ def pokemon(page=1):
     lines += "<br>Max Per Page:&nbsp;&nbsp;"
     lines += "<select onchange='this.options[this.selectedIndex].value && (window.location = this.options[this.selectedIndex].value);'>"
     lines += u"<option value=./{}?sort={}&reverse={}&max_per_page=10 {}>10</option>".format(page, sort, reverse,
-                                                                                            "selected" if max_pokemon_per_page == 10 else "")
+                                                                                            "selected" if max_pokemon_per_page == "10" else "")
     lines += u"<option value=./{}?sort={}&reverse={}&max_per_page=25 {}>25</option>".format(page, sort, reverse,
-                                                                                            "selected" if max_pokemon_per_page == 25 else "")
+                                                                                            "selected" if max_pokemon_per_page == "25" else "")
     lines += u"<option value=./{}?sort={}&reverse={}&max_per_page=50 {}>50</option>".format(page, sort, reverse,
-                                                                                            "selected" if max_pokemon_per_page == 50 else "")
+                                                                                            "selected" if max_pokemon_per_page == "50" else "")
     lines += u"<option value=./{}?sort={}&reverse={}&max_per_page=100 {}>100</option>".format(page, sort, reverse,
-                                                                                              "selected" if max_pokemon_per_page == 100 else "")
+                                                                                              "selected" if max_pokemon_per_page == "100" else "")
+    lines += u"<option value=./{}?sort={}&reverse={}&max_per_page=all {}>ALL</option>".format(page, sort, reverse,
+                                                                                              "selected" if max_pokemon_per_page == "all" else "")
     lines += "</select><br>"
 
     return lines
