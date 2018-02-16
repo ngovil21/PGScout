@@ -62,4 +62,4 @@ class ScoutGuard(object):
         if self.acc:
             return self.acc.username
         else:
-            return " "              #return space so table formatter does not complain
+            return "None"              #return space so table formatter does not complain

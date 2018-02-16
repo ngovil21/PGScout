@@ -129,7 +129,12 @@ def print_scouts(lines, state, scouts):
     def scout_line(current_line, scout_guard):
         scout = scout_guard.acc
         if not scout:                           #If no scout, skip by returning None, filtered out later
-            return None
+            if cfg_get('proxies'):
+                return line_tmpl.format(current_line, "None", "", "", "", 'No', "", "", "", "",
+                                        "Waiting for new account...")
+            else:
+                return line_tmpl.format(current_line, "None", "", "", 'No', "", "", "", "",
+                                        "Waiting for new account...")
         warn = scout.get_state('warn')
         warn_str = '' if warn is None else ('Yes' if warn else 'No')
         active = 'Yes' if scout_guard.active else 'No'
