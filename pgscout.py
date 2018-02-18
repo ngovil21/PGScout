@@ -105,11 +105,11 @@ def get_iv():
 def status(page=1):
 
     def td(cell):
-        return "<td>{}</td>".format(cell)
+        return u"<td>{}</td>".format(cell)
 
     max_scouts_per_page = 25
     max_page = int(math.ceil(len(scouts)/float(max_scouts_per_page)))
-    lines = "<style> th,td { padding-left: 10px; padding-right: 10px; border: 1px solid #ddd; } table { border-collapse: collapse } td { text-align:center }</style>"
+    lines = u"<style> th,td { padding-left: 10px; padding-right: 10px; border: 1px solid #ddd; } table { border-collapse: collapse } td { text-align:center }</style>"
     lines += "<meta http-equiv='Refresh' content='5'>"
     lines += "Accepting requests: {} | Job queue length: {} | Cached encounters: {} | Mem Usage: {}".format(
                 app_state.accept_new_requests, jobs.qsize(), get_cached_count(), rss_mem_size())
